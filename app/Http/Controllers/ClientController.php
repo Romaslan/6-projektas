@@ -6,6 +6,8 @@ use App\Models\Client;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 
+use Illuminate\Http\Request;
+
 class ClientController extends Controller
 {
     /**
@@ -15,7 +17,9 @@ class ClientController extends Controller
      */
     public function index()
     {
-        //
+        $clients = Client::all();
+        return view("client.index", ['clients'=>$clients]);
+
     }
 
     /**
@@ -25,7 +29,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        //
+        return view("client.create");
     }
 
     /**
@@ -34,9 +38,40 @@ class ClientController extends Controller
      * @param  \App\Http\Requests\StoreClientRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreClientRequest $request)
+    public function store(Request $request)
     {
-        //
+        $client = new Client;
+        $client->name = $request->client_name;
+        $client->surname = $request->client_surname;
+        $client->description = $request->client_description;
+
+        $client->save();
+
+        return redirect()->route('client.create');
+    }
+    public function storeAjax(Request $request) {
+        
+        $client = new Client;
+        $client->name = $request->client_name;
+        $client->surname = $request->client_surname;
+        $client->description = $request->client_description;
+
+        $client->save();
+
+        $client_array = array (
+            'successMessage' => "Client stored succesfuly",
+            'clientId' => $client->id,
+            'clientName' => $client->name,
+            'clientSurname' => $client->surname,
+            'clientDescription' => $client->description,
+
+        );
+
+        $json_response =response()->json($client_array);
+
+        // $html = "<tr><td>".$client->id."</td><td>".$client->name."</td><td>".$client->surname."</td><td>".$client->description."</td></tr>";
+        return $json_response;
+
     }
 
     /**
