@@ -2,18 +2,21 @@
 
 @section('content')
 <div class="container">
+    
 
     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  Create new client
-</button>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
+        Create client
+    </button>
+
+    <button id="remove-table">Remove table</button>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="createClientModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Create Client</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Create Modal</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -34,7 +37,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button id="close-client-create-modal" type="button" class="btn btn-secondary" >Close with Javascript</button>
+        <!-- <button id="close-client-create-modal" type="button" class="btn btn-secondary" >Close with Javascript</button> -->
         <button id="submit-ajax-form" type="button" class="btn btn-primary">Save changes</button>
       </div>
     </div>
@@ -70,13 +73,22 @@
             <th>Name</th>
             <th>Surname</th>
             <th>Description</th>
+            <th>Action</th>
         </tr>
         @foreach ($clients as $client)
-        <tr>
+        <tr class="client{{$client->id}}">
             <td>{{$client->id}}</td>
             <td>{{$client->name}}</td>
             <td>{{$client->surname}}</td>
             <td>{{$client->description}}</td>
+            <td>
+                <!-- <form action={{route("client.destroy",[$client])}} method="POST"> -->
+                   
+                    <button class="btn btn-danger delete-client" type="submit" data-clientid="{{$client->id}}">Delete</button>
+                <!-- </form> -->
+            
+            
+            </td>
         </tr>
         @endforeach
     </table>
@@ -95,14 +107,20 @@ $.ajaxSetup({
     }
 });
 
-$(document).ready(function(){
+// $(document).ready(function(){
 
-    $("#close-client-create-modal").click(function() {
-        $("#createClientModal").modal('hide')
-    })
+    
+
+    
+
+
+$(document).ready(function() {
+    $("#remove-table").click(function(){
+        $('.client53').remove();
+    });
 
     console.log("Jequery veikia")
-    $("#submit-ajax-form").click(function(){
+    $("#submit-ajax-form").click(function() {
         let client_name;
         let client_surname;
         let client_description;
@@ -121,14 +139,47 @@ $(document).ready(function(){
                 // $("#alert").html(data);
                 console.log(data);
                 
-                let html = "<tr><td>"+data.clientId+"</td><td>"+data.clientName+"</td><td>"+data.clientSurname+"</td><td>"+data.clientDescription+"</td></tr>";
+                let html = "<tr class='client"+data.clientid+"'><td>"+data.clientId+"</td><td>"+data.clientName+"</td><td>"+data.clientSurname+"</td><td>"+data.clientDescription+"</td><td><button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>Delete</button></td></tr>";
                 $("#clients-table").append(html);
+
+                $("#createClientModal").hide()
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
+                $('body').css({overflow:'auto'});
 
                 $("#alert").removeClass("d-none");
                 $("#alert").html(data.successMessage +" " + data.clientName +" " + data.clientSurname);
+
+                $('#client_name').val('');
+                $('#client_surname').val('');
+                $('#client_description').val('');
             }
         });
     });
+
+    // $(".delete-client").click(function(){
+        $(document).on('click','.delete-client', function() {
+
+            let clientid;
+            clientid = $(this).attr('data-clientid');
+            console.log(clientid);
+
+            $.ajax({
+            type: 'POST',
+            url: '/clients/deleteAjax/' + clientid,
+
+            success: function(data) {
+                // $("#alert").html(data);
+                console.log(data);
+
+                $('.client'+clientid).remove();
+                $("#alert").removeClass("d-none");
+                $("#alert").html(data.successMessage);
+            }
+        });
+
+    })
+
 })
 </script>
 
