@@ -82,7 +82,18 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        //
+        return view("client.show", ['client'=>$client]);
+    }
+    public function showAjax(Client $client){
+        $client_array = array (
+            'successMessage' => "Client retrieved succesfuly",
+            'clientId' => $client->id,
+            'clientName' => $client->name,
+            'clientSurname' => $client->surname,
+            'clientDescription' => $client->description,
+        );
+        $json_response =response()->json($client_array);
+        return $json_response;
     }
 
     /**
@@ -103,9 +114,33 @@ class ClientController extends Controller
      * @param  \App\Models\Client  $client
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateClientRequest $request, Client $client)
+    public function update(Request $request, Client $client)
     {
         //
+    }
+
+    public function updateAjax(Request $request, Client $client)
+    {
+        $client->name = $request->client_name;
+        $client->surname = $request->client_surname;
+        $client->description = $request->client_description;
+
+        $client->save();
+
+        $client_array = array (
+            'successMessage' => "Client updated succesfuly",
+            'clientId' => $client->id,
+            'clientName' => $client->name,
+            'clientSurname' => $client->surname,
+            'clientDescription' => $client->description,
+
+        );
+
+        $json_response =response()->json($client_array);
+
+        // $html = "<tr><td>".$client->id."</td><td>".$client->name."</td><td>".$client->surname."</td><td>".$client->description."</td></tr>";
+        return $json_response;
+
     }
 
     /**
