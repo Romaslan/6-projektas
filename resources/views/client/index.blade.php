@@ -168,6 +168,20 @@
         </tr>
         @endforeach
     </table>
+
+    <table class="template">
+        <tr>
+            <td class="col-client-id"></td>
+            <td class="col-client-name"></td>
+            <td class="col-client-surname"></td>
+            <td class="col-client-description"></td>
+            <td>
+                <button class="btn btn-danger delete-client" type="submit" data-clientid="">Delete</button>
+                <button type="button" class="btn btn-primary show-client" data-bs-toggle="modal" data-bs-target="#showClientModal" data-clientid="">Show</button>
+                <button type="button" class="btn btn-secondary edit-client" data-bs-toggle="modal" data-bs-target="#editClientModal" data-clientid="">Edit</button>
+            </td>
+        </tr>
+    </table>
 </div>
 
 <!-- Button trigger modal -->
@@ -195,6 +209,38 @@ $(document).ready(function() {
         $('.client53').remove();
     });
 
+    function createRow(clientId, clientName, clientSurname, clientDescription) {
+                let html
+                html+="<tr class='client"+data.clientid+"'>";
+                html+="<td>"+clientId+"</td>";
+                html+="<td>"+clientName+"</td>";
+                html+="<td>"+clientSurname+"</td>";
+                html+="<td>"+clientDescription+"</td>";
+                html+="<td>";
+                html+="<button class='btn btn-danger delete-client' type='submit' data-clientid='"+clientId+"'>Delete</button>";
+                html+="</td>";
+                html+="</tr>"
+
+                return html
+    }
+    function createRowFromHtml(clientId, clientName, clientSurname, clientDescription) {
+        $(".template tr").addClass("client"+clientId);
+        $(".template .delete-client").attr('data.clientId', clientId);
+        $(".template .show-client").attr('data.clientId', clientId);
+        $(".template .edit-client").attr('data.clientId', clientId);
+        $(".template .col-client-id").html(clientId);
+        $(".template .col-client-name").html(clientName);
+        $(".template .col-client-surname").html(clientSurname);
+        $(".template .col-client-description").html(clientDescription);
+
+
+
+
+        // console.log($(".template tbody").html());
+        return $(".template tbody").html();
+    }
+    
+
     console.log("Jequery veikia")
     $("#submit-ajax-form").click(function() {
         let client_name;
@@ -214,10 +260,28 @@ $(document).ready(function() {
             success: function(data) {
                 // $("#alert").html(data);
                 console.log(data);
+
+                let html;
+
+                // html+="<tr class='client"+data.clientid+"'>";
+                // html+="<td>"+data.clientId+"</td>";
+                // html+="<td>"+data.clientName+"</td>";
+                // html+="<td>"+data.clientSurname+"</td>";
+                // html+="<td>"+data.clientDescription+"</td>";
+                // html+="<td>";
+                // html+="<button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>Delete</button>";
+                // html+="</td>";
+                // html+="</tr>"
+
+
+
                 
                 // let html = "<tr class='client"+data.clientid+"'><td>"+data.clientId+"</td><td>"+data.clientName+"</td><td>"+data.clientSurname+"</td><td>"+data.clientDescription+"</td><td><button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>Delete</button><button type='button' class='btn btn-primary show-client' data-bs-toggle='modal' data-bs-target='#showClientModal' data-clientid='"+data.clientId+"'>Show</button></td></tr>";
-                let html = "<tr class='client"+data.clientId+"'><td>"+data.clientId+"</td><td>"+data.clientName+"</td><td>"+data.clientSurname+"</td><td>"+data.clientDescription+"</td><td><button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>DELETE</button><button type='button' class='btn btn-primary show-client' data-bs-toggle='modal' data-bs-target='#showClientModal' data-clientid='"+data.clientId+"'>Show</button><button type='button' class='btn btn-secondary edit-client' data-bs-toggle='modal' data-bs-target='#editClientModal' data-clientid='"+data.clientId+"'>Edit</button></td></tr>";
+                // let html = "<tr class='client"+data.clientId+"'><td>"+data.clientId+"</td><td>"+data.clientName+"</td><td>"+data.clientSurname+"</td><td>"+data.clientDescription+"</td><td><button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>DELETE</button><button type='button' class='btn btn-primary show-client' data-bs-toggle='modal' data-bs-target='#showClientModal' data-clientid='"+data.clientId+"'>Show</button><button type='button' class='btn btn-secondary edit-client' data-bs-toggle='modal' data-bs-target='#editClientModal' data-clientid='"+data.clientId+"'>Edit</button></td></tr>";
 
+                // html = createRow(data.clientId, data.clientName, data.clientSurname, data.clientDescription);
+
+                html = createRowFromHtml(data.clientId, data.clientName, data.clientSurname, data.clientDescription);
                 $("#clients-table").append(html);
 
                 $("#createClientModal").hide()
