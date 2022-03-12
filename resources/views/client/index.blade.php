@@ -53,6 +53,7 @@
             <th>Name</th>
             <th>Surname</th>
             <th>Description</th>
+            <th>Company</th>
             <th>Action</th>
         </tr>
         @foreach ($clients as $client)
@@ -61,6 +62,8 @@
             <td class="col-client-name">{{$client->name}}</td>
             <td class="col-client-surname">{{$client->surname}}</td>
             <td class="col-client-description">{{$client->description}}</td>
+            <td class="col-client-company">{{$client->clientCompany->title}}</td>
+
             <td>
                 <!-- <form action={{route("client.destroy",[$client])}} method="POST"> -->
                    
@@ -82,6 +85,7 @@
             <td class="col-client-name"></td>
             <td class="col-client-surname"></td>
             <td class="col-client-description"></td>
+            <td class="col-client-company"></td>
             <td>
                 <button class="btn btn-danger delete-client" type="submit" data-clientid="">Delete</button>
                 <button type="button" class="btn btn-primary show-client" data-bs-toggle="modal" data-bs-target="#showClientModal" data-clientid="">Show</button>
@@ -132,7 +136,7 @@ $(document).ready(function() {
 
                 return html
     }
-    function createRowFromHtml(clientId, clientName, clientSurname, clientDescription) {
+    function createRowFromHtml(clientId, clientName, clientSurname, clientDescription, clientCompanyId) {
         $(".template tr").addClass("client"+clientId);
         $(".template .delete-client").attr('data.clientId', clientId);
         $(".template .show-client").attr('data.clientId', clientId);
@@ -141,6 +145,8 @@ $(document).ready(function() {
         $(".template .col-client-name").html(clientName);
         $(".template .col-client-surname").html(clientSurname);
         $(".template .col-client-description").html(clientDescription);
+        $(".template .col-client-company").html(clientCompanyId);
+
 
 
 
@@ -155,17 +161,19 @@ $(document).ready(function() {
         let client_name;
         let client_surname;
         let client_description;
+        let client_company_id;
 
         client_name = $('#client_name').val();
         client_surname = $('#client_surname').val();
         client_description = $('#client_description').val();
+        client_company_id = $('#client_company_id').val();
 
         // console.log(client_name + " " + client_surname + " " + client_description);
 
         $.ajax({
             type: 'POST',
             url: '{{route("client.storeAjax")}}',
-            data: {client_name: client_name, client_surname: client_surname, client_description: client_description},
+            data: {client_name: client_name, client_surname: client_surname, client_description: client_description, client_company_id: client_company_id},
             success: function(data) {
                 // $("#alert").html(data);
                 console.log(data);
@@ -190,7 +198,7 @@ $(document).ready(function() {
 
                 // html = createRow(data.clientId, data.clientName, data.clientSurname, data.clientDescription);
 
-                html = createRowFromHtml(data.clientId, data.clientName, data.clientSurname, data.clientDescription);
+                html = createRowFromHtml(data.clientId, data.clientName, data.clientSurname, data.clientDescription, data.clientCompanyTitle);
                 $("#clients-table").append(html);
 
                 $("#createClientModal").hide()
@@ -247,6 +255,8 @@ $(document).ready(function() {
                 $('.show-client-name').html(data.clientName);
                 $('.show-client-surname').html(data.clientSurname);
                 $('.show-client-description').html(data.clientDescription);
+                $('.show-client-company').html(data.clientCompanyTitle);
+
             }
         });
     });
@@ -267,6 +277,10 @@ $(document).ready(function() {
                 $('#edit_client_name').val(data.clientName);
                 $('#edit_client_surname').val(data.clientSurname);
                 $('#edit_client_description').val(data.clientDescription);
+
+                $('#edit_client_company_id option').removeAttr('selected');
+                $('#edit_client_company_id').val(data.clientCompanyId);
+                $('#edit_client_company_id ,company'+ data.clientCompanyId).attr("selected", "selected");
             }
         });
     });  

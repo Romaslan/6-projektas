@@ -36,3 +36,10 @@ Route::prefix('clients')->group(function() {
     
     // Route::get('search', 'App\Http\Controllers\AuthorController@search')->name('author.search');
 });
+
+Route::prefix('companies')->group(function() {
+    Route::get('', 'App\Http\Controllers\CompanyController@index')->name('company.index');
+    Route::get('create', 'App\Http\Controllers\CompanyController@create')->name('company.create');
+    Route::post('store', 'App\Http\Controllers\CompanyController@store')->name('company.store');
+ 
+});
