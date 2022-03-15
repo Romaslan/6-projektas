@@ -92,4 +92,25 @@ class CompanyController extends Controller
     {
         //
     }
+    public function destroyAjax(Company $company) {
+
+        $clients_count = count($company->companyClients);
+
+        if($clients_count > 0) {
+            $response_array = array (
+                'errorMessage' => "Company cannot be deleted because it has clients", $company->id,
+            );
+        } else {
+            $company->delete();
+            $response_array = array (
+                'successMessage' => "Company deleted succesfuly", $company->id,
+    
+            );
+        }
+
+        $json_response =response()->json($response_array);
+
+        return $json_response;
+    }
+
 }
