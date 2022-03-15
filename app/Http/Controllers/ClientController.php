@@ -18,11 +18,20 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::all();
+        $clients = Client::sortable()->get();
         $companies = Company::all();
 
         return view("client.index", ['clients'=>$clients, 'companies'=>$companies]);
 
+    }
+
+    public function indexAjax() {
+        $clients = Client::sortable()->get();
+
+        $json_response =response()->json($clients);
+
+        // $html = "<tr><td>".$client->id."</td><td>".$client->name."</td><td>".$client->surname."</td><td>".$client->description."</td></tr>";
+        return $json_response;
     }
 
     /**
