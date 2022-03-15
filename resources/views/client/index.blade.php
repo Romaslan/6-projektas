@@ -290,22 +290,28 @@ $(document).ready(function() {
         let client_name;
         let client_surname;
         let client_description;
+        let client_company_id;
+
 
         clientid = $('#edit_client_id').val();
         client_name = $('#edit_client_name').val();
         client_surname = $('#edit_client_surname').val();
         client_description = $('#edit_client_description').val();
+        client_company_id = $('#edit_client_company_id').val();
+
         $.ajax({
             type: 'POST',
             url: '/clients/updateAjax/' + clientid,
-            data: {client_name: client_name, client_surname: client_surname, client_description: client_description},
+            data: {client_name: client_name, client_surname: client_surname, client_description: client_description, client_company_id: client_company_id},
             success: function(data) {
                 // $("#alert").html(data);
                 // $('#edit-client-id').html(data.clientId);
                 // $(".client"+clientid+ " " + ".col-client-id").html(data.clientId)
-                $(".client"+clientid+ " " + ".col-client-name").html(data.clientName)
-                $(".client"+clientid+ " " + ".col-client-surname").html(data.clientSurname)
-                $(".client"+clientid+ " " + ".col-client-description").html(data.clientDescription)
+                $(".client"+clientid+ " " + ".col-client-name").html(data.clientName);
+                $(".client"+clientid+ " " + ".col-client-surname").html(data.clientSurname);
+                $(".client"+clientid+ " " + ".col-client-description").html(data.clientDescription);
+                $(".client"+clientid+ " " + ".col-client-company").html(data.clientCompanyTitle);
+
 
                     $("#alert").removeClass("d-none");
                     $("#alert").html(data.successMessage);
