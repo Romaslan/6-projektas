@@ -48,35 +48,39 @@
         </div> -->
 
     <table id="clients-table" class="table table-striped">
-        <tr>
-            <th>@sortablelink('id')</th>
-            <th>@sortablelink('name')</th>
-            <th>@sortablelink('surname')</th>
-            <th>@sortablelink('description')</th>
-            <th>Company</th>
-            <th>Action</th>
-        </tr>
-        @foreach ($clients as $client)
-        <tr class="client{{$client->id}}">
-            <td class="col-client-id">{{$client->id}}</td>
-            <td class="col-client-name">{{$client->name}}</td>
-            <td class="col-client-surname">{{$client->surname}}</td>
-            <td class="col-client-description">{{$client->description}}</td>
-            <td class="col-client-company">{{$client->clientCompany->title}}</td>
+        <thead>
+            <tr>
+                <th>@sortablelink('id')</th>
+                <th>@sortablelink('name')</th>
+                <th>@sortablelink('surname')</th>
+                <th>Description</th>
+                <th>Company</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <body>
+            @foreach ($clients as $client)
+            <tr class="client{{$client->id}}">
+                <td class="col-client-id">{{$client->id}}</td>
+                <td class="col-client-name">{{$client->name}}</td>
+                <td class="col-client-surname">{{$client->surname}}</td>
+                <td class="col-client-description">{{$client->description}}</td>
+                <td class="col-client-company">{{$client->clientCompany->title}}</td>
 
-            <td>
-                <!-- <form action={{route("client.destroy",[$client])}} method="POST"> -->
-                   
-                <button class="btn btn-danger delete-client" type="submit" data-clientid="{{$client->id}}">Delete</button>
-                <button type="button" class="btn btn-primary show-client" data-bs-toggle="modal" data-bs-target="#showClientModal" data-clientid="{{$client->id}}">Show</button>
-                <button type="button" class="btn btn-secondary edit-client" data-bs-toggle="modal" data-bs-target="#editClientModal" data-clientid="{{$client->id}}">Edit</button>
+                <td>
+                    <!-- <form action={{route("client.destroy",[$client])}} method="POST"> -->
+                    
+                    <button class="btn btn-danger delete-client" type="submit" data-clientid="{{$client->id}}">Delete</button>
+                    <button type="button" class="btn btn-primary show-client" data-bs-toggle="modal" data-bs-target="#showClientModal" data-clientid="{{$client->id}}">Show</button>
+                    <button type="button" class="btn btn-secondary edit-client" data-bs-toggle="modal" data-bs-target="#editClientModal" data-clientid="{{$client->id}}">Edit</button>
 
-                <!-- </form> -->
-            
-            
-            </td>
-        </tr>
-        @endforeach
+                    <!-- </form> -->
+                
+                
+                </td>
+            </tr>
+            @endforeach
+        </body>
     </table>
 
     <table class="template d-none">
@@ -137,6 +141,7 @@ $(document).ready(function() {
                 return html
     }
     function createRowFromHtml(clientId, clientName, clientSurname, clientDescription, clientCompanyId) {
+        $(".template tr").removeAttr("class");
         $(".template tr").addClass("client"+clientId);
         $(".template .delete-client").attr('data.clientId', clientId);
         $(".template .show-client").attr('data.clientId', clientId);
@@ -324,14 +329,23 @@ $(document).ready(function() {
         });
     })
     $('#clients-sort').click(function(){
-        let sort = 'name';
-        let direction = 'asc';
+        let sort = 'id';
+        let direction = 'desc';
         $.ajax({
             type: 'GET',
             url: '{{route("client.indexAjax")}}',
             data: {sort:sort, direction: direction},
             success: function(data) {
-                console.log(data);
+                console.log(data.clients);
+               
+                $("#clients-table tbody").html('');
+                $.each(data.clients, function(key, client) {
+                    let html;
+                    
+                    html = createRowFromHtml(client.id, client.name, client.surname, client.description, client.company_id);
+                    // console.log(html)
+                    $("#clients-table tbody").append(html);
+                });
             }
         });
     })

@@ -28,7 +28,11 @@ class ClientController extends Controller
     public function indexAjax() {
         $clients = Client::sortable()->get();
 
-        $json_response =response()->json($clients);
+        $clients_array = array(
+            'clients' => $clients
+        );
+
+        $json_response =response()->json($clients_array);
 
         // $html = "<tr><td>".$client->id."</td><td>".$client->name."</td><td>".$client->surname."</td><td>".$client->description."</td></tr>";
         return $json_response;
