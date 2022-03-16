@@ -340,9 +340,10 @@ $(document).ready(function() {
                
                 $("#clients-table tbody").html('');
                 $.each(data.clients, function(key, client) {
+                    
                     let html;
                     
-                    html = createRowFromHtml(client.id, client.name, client.surname, client.description, client.company_id);
+                    html = createRowFromHtml(client.id, client.name, client.surname, client.description, client.client_company.title);
                     // console.log(html)
                     $("#clients-table tbody").append(html);
                 });

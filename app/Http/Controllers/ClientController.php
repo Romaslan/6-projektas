@@ -26,7 +26,7 @@ class ClientController extends Controller
     }
 
     public function indexAjax() {
-        $clients = Client::sortable()->get();
+        $clients = Client::with('clientCompany')->sortable()->get();
 
         $clients_array = array(
             'clients' => $clients
