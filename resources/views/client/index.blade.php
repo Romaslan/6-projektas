@@ -2,23 +2,27 @@
 
 @section('content')
 
-<!-- <style>
-.client65 {
-    color:red
+<style>
+th div{
+    cursor: pointer;
 }
-.client65 .col-client-id {
-    color:blue
-}
-
-</style> -->
-
+</style>
 <div class="container">
     
-    <button id="clients-sort" type="button">Rikiuok pagal id mazejimo tvarka</button>
+    <button class="clients-sort" type="button" data-sort="id" data-direction="asc">Rikiuok pagal id</button>
+    <button class="clients-sort" type="button" data-sort="name" data-direction="asc">Rikiuok pagal varda</button>
+    <button class="clients-sort" type="button" data-sort="surname" data-direction="asc">Rikiuok pagal pavarde</button>
+    <button class="clients-sort" type="button" data-sort="description" data-direction="asc">Rikiuok pagal aprasyma</button>
+    <button class="clients-sort" type="button" data-sort="clientCompany.title" data-direction="asc">Rikiuok pagal kompanijos pavadinima</button>
+
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
         Create client
     </button>
+
+    <input id="hidden-sort" type="hidden" value="id"/>
+    <input id="hidden-direction" type="hidden" value="asc"/>
+
 
     <button id="remove-table">Remove table</button>
 
@@ -50,12 +54,12 @@
     <table id="clients-table" class="table table-striped">
         <thead>
             <tr>
-                <th>@sortablelink('id')</th>
-                <th>@sortablelink('name')</th>
-                <th>@sortablelink('surname')</th>
-                <th>Description</th>
-                <th>Company</th>
-                <th>Action</th>
+                <th><div class="clients-sort" data-sort="id" data-direction="asc">ID</div></th>
+                <th><div class="clients-sort"  data-sort="name" data-direction="asc">Name</div></th>
+                <th><div class="clients-sort"  data-sort="surname" data-direction="asc">Surname</div></th>
+                <th><div class="clients-sort"  data-sort="description" data-direction="asc">Description</div></th>
+                <th><div class="clients-sort"  data-sort="clientCompany.title" data-direction="asc">Company</div></th>
+                <th>Actions</th>
             </tr>
         </thead>
         <body>
@@ -167,37 +171,37 @@ $(document).ready(function() {
         let client_surname;
         let client_description;
         let client_company_id;
+        let sort;
+        let direction;
 
         client_name = $('#client_name').val();
         client_surname = $('#client_surname').val();
         client_description = $('#client_description').val();
         client_company_id = $('#client_company_id').val();
+        sort = $('#hidden-sort').val();
+        direction = $('#hidden-direction').val();
+
 
         // console.log(client_name + " " + client_surname + " " + client_description);
 
         $.ajax({
             type: 'POST',
             url: '{{route("client.storeAjax")}}',
-            data: {client_name: client_name, client_surname: client_surname, client_description: client_description, client_company_id: client_company_id},
+            data: {client_name: client_name, client_surname: client_surname, client_description: client_description, client_company_id: client_company_id, sort: sort, direction: direction},
             success: function(data) {
                 // $("#alert").html(data);
                 console.log(data);
 
-                let html;
+                $("#clients-table tbody").html('');
+                $.each(data.clients, function(key, client) {
+                    let html;
+                    html = createRowFromHtml(client.id, client.name, client.surname, client.description, client.client_company.title);
+                    // console.log(html)
+                    $("#clients-table tbody").append(html);
+                });
 
-                // html+="<tr class='client"+data.clientid+"'>";
-                // html+="<td>"+data.clientId+"</td>";
-                // html+="<td>"+data.clientName+"</td>";
-                // html+="<td>"+data.clientSurname+"</td>";
-                // html+="<td>"+data.clientDescription+"</td>";
-                // html+="<td>";
-                // html+="<button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>Delete</button>";
-                // html+="</td>";
-                // html+="</tr>"
+                // let html;
 
-
-
-                
                 // let html = "<tr class='client"+data.clientid+"'><td>"+data.clientId+"</td><td>"+data.clientName+"</td><td>"+data.clientSurname+"</td><td>"+data.clientDescription+"</td><td><button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>Delete</button><button type='button' class='btn btn-primary show-client' data-bs-toggle='modal' data-bs-target='#showClientModal' data-clientid='"+data.clientId+"'>Show</button></td></tr>";
                 // let html = "<tr class='client"+data.clientId+"'><td>"+data.clientId+"</td><td>"+data.clientName+"</td><td>"+data.clientSurname+"</td><td>"+data.clientDescription+"</td><td><button class='btn btn-danger delete-client' type='submit' data-clientid='"+data.clientId+"'>DELETE</button><button type='button' class='btn btn-primary show-client' data-bs-toggle='modal' data-bs-target='#showClientModal' data-clientid='"+data.clientId+"'>Show</button><button type='button' class='btn btn-secondary edit-client' data-bs-toggle='modal' data-bs-target='#editClientModal' data-clientid='"+data.clientId+"'>Edit</button></td></tr>";
 
@@ -328,9 +332,22 @@ $(document).ready(function() {
             }
         });
     })
-    $('#clients-sort').click(function(){
-        let sort = 'id';
-        let direction = 'desc';
+    $('.clients-sort').click(function(){
+        let sort;
+        let direction;
+
+        sort = $(this).attr('data-sort');
+        direction = $(this).attr('data-direction');
+
+        $("#hidden-sort").val(sort);
+        $("#hidden-direction").val(direction);
+
+        if(direction == 'asc') {
+            $(this).attr('data-direction', 'desc');
+        } else {
+            $(this).attr('data-direction', 'asc');
+        }
+
         $.ajax({
             type: 'GET',
             url: '{{route("client.indexAjax")}}',

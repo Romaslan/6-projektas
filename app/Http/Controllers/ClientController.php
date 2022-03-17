@@ -75,6 +75,11 @@ class ClientController extends Controller
 
         $client->save();
 
+        $sort = $request->sort;
+        $direction = $request->direction;
+
+        $clients = Client::with("clientCompany")->sortable([$sort => $direction])->get();
+
         $client_array = array (
             'successMessage' => "Client stored succesfuly",
             'clientId' => $client->id,
@@ -83,6 +88,7 @@ class ClientController extends Controller
             'clientDescription' => $client->description,
             'clientCompanyId' => $client->company_id,
             'clientCompanyTitle' => $client->clientCompany->title,
+            'clients' => $clients
 
         );
 
