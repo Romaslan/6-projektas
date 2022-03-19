@@ -8,6 +8,8 @@ use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 
 use Illuminate\Http\Request;
+use Validator;
+
 
 class ClientController extends Controller
 {
@@ -17,24 +19,29 @@ class ClientController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {   
+        //sort ir direction
         $clients = Client::sortable()->get();
         $companies = Company::all();
 
         return view("client.index", ['clients'=>$clients, 'companies'=>$companies]);
-
     }
 
     public function indexAjax() {
+
+        //1milijonas
         $clients = Client::with('clientCompany')->sortable()->get();
 
-        $clients_array = array(
+        //foreach $clients
+        //clientTitle
+        //$client->clientCompany->title;
+
+        $cliens_array = array(
             'clients' => $clients
         );
 
-        $json_response =response()->json($clients_array);
+        $json_response =response()->json($cliens_array); 
 
-        // $html = "<tr><td>".$client->id."</td><td>".$client->name."</td><td>".$client->surname."</td><td>".$client->description."</td></tr>";
         return $json_response;
     }
 
@@ -60,43 +67,85 @@ class ClientController extends Controller
         $client->name = $request->client_name;
         $client->surname = $request->client_surname;
         $client->description = $request->client_description;
-
+    
         $client->save();
 
         return redirect()->route('client.create');
     }
+
     public function storeAjax(Request $request) {
+
         
-        $client = new Client;
-        $client->name = $request->client_name;
-        $client->surname = $request->client_surname;
-        $client->description = $request->client_description;
-        $client->company_id = $request->client_company_id;
+        // $request->validate([
+        //     'client_name'=> 'required',
+        //     'client_surname'=> 'required',
+        //     'client_description'=> 'required',
+        //     'client_company_id'=> 'required',
+        // ]);
+        //funbkcija  mes nenutrauktume
+        //grazinti klaidos json_response
 
-        $client->save();
+        //sitoje vietoje ir nutrauks funkcija
+        $input = [
+            'client_name'=> $request->client_name,
+            'client_surname'=> $request->client_surname,
+            'client_description'=> $request->client_description,
+            'client_company_id'=> $request->client_description,
+        ];
 
-        $sort = $request->sort;
-        $direction = $request->direction;
+        $rules = [
+            'client_name'=> 'required',
+            'client_surname'=> 'required',
+            'client_description'=> 'required',
+            'client_company_id'=> 'required',
+        ];
 
-        $clients = Client::with("clientCompany")->sortable([$sort => $direction])->get();
+        $customMessages = [
+            'required' => "This field is required"
+        ];
 
-        $client_array = array (
-            'successMessage' => "Client stored succesfuly",
-            'clientId' => $client->id,
-            'clientName' => $client->name,
-            'clientSurname' => $client->surname,
-            'clientDescription' => $client->description,
-            'clientCompanyId' => $client->company_id,
-            'clientCompanyTitle' => $client->clientCompany->title,
-            'clients' => $clients
+        
+        $validator = Validator::make($input, $rules); // 3 funckijos argumentas neprivalomas
 
-        );
+        //tikrina ar validatorius nepraejo
+        if($validator->fails()) {
 
-        $json_response =response()->json($client_array);
+            //zinuciu masyva, kuriose surasyta viskas, kas negerai
+            //atvaizduoti zinuciu masyva prie kiekvieno input laukelio
+            $errors = $validator->messages()->get('*'); //pasiima visu ivykusiu klaidu sarasa
+            $client_array = array(
+                'errorMessage' => "validator fails",
+                'errors' => $errors
+            );
+        } else {
 
-        // $html = "<tr><td>".$client->id."</td><td>".$client->name."</td><td>".$client->surname."</td><td>".$client->description."</td></tr>";
+            $client = new Client;
+            $client->name = $request->client_name;
+            $client->surname = $request->client_surname;
+            $client->description = $request->client_description;
+            $client->company_id = $request->client_company_id;
+        
+            $client->save();//po isaugojimo momento
+
+            $sort = $request->sort ;
+            $direction = $request->direction ;
+
+            $clients = Client::with("clientCompany")->sortable([$sort => $direction ])->get();
+
+            $client_array = array(
+                'successMessage' => "Client stored succesfuly",
+                'clientId' => $client->id,
+                'clientName' => $client->name,
+                'clientSurname' => $client->surname,
+                'clientDescription' => $client->description,
+                'clientCompanyId' => $client->company_id,
+                'clientCompanyTitle' => $client->clientCompany->title,
+                "clients" => $clients
+            );
+    }
+
+        $json_response =response()->json($client_array); 
         return $json_response;
-
     }
 
     /**
@@ -107,20 +156,23 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        return view("client.show", ['client'=>$client]);
+        return view("client.show", ['client' => $client]);
     }
-    public function showAjax(Client $client){
-        $client_array = array (
+
+    public function showAjax(Client $client) {
+        $client_array = array(
             'successMessage' => "Client retrieved succesfuly",
             'clientId' => $client->id,
             'clientName' => $client->name,
             'clientSurname' => $client->surname,
             'clientDescription' => $client->description,
             'clientCompanyId' => $client->company_id,
-            'clientCompanyTitle' => $client->clientCompany->title,
+            'clientCompanyTitle' => $client->clientCompany->title
 
         );
-        $json_response =response()->json($client_array);
+
+        $json_response =response()->json($client_array); 
+
         return $json_response;
     }
 
@@ -154,26 +206,22 @@ class ClientController extends Controller
         $client->description = $request->client_description;
         $client->company_id = $request->client_company_id;
 
-
         $client->save();
 
-        $client_array = array (
+        $client_array = array(
             'successMessage' => "Client updated succesfuly",
             'clientId' => $client->id,
             'clientName' => $client->name,
             'clientSurname' => $client->surname,
             'clientDescription' => $client->description,
             'clientCompanyId' => $client->company_id,
-            'clientCompanyTitle' => $client->clientCompany->title,
-            
-
+            'clientCompanyTitle' => $client->clientCompany->title
         );
 
-        $json_response =response()->json($client_array);
+        // 
+        $json_response =response()->json($client_array); //javascript masyva
 
-        // $html = "<tr><td>".$client->id."</td><td>".$client->name."</td><td>".$client->surname."</td><td>".$client->description."</td></tr>";
         return $json_response;
-
     }
 
     /**
@@ -187,20 +235,23 @@ class ClientController extends Controller
         $client->delete();
         return redirect()->route("client.index");
     }
+
     public function destroyAjax(Client $client)
     {
         $client->delete();
-        $success_array = array (
-            'successMessage' => "Client deleted succesfuly", $client->id,
 
+        $success_array = array(
+            'successMessage' => "Client deleted successfuly". $client->id,
         );
 
+        // 
         $json_response =response()->json($success_array);
 
         return $json_response;
     }
 
     public function searchAjax(Request $request) {
+
         $searchValue = $request->searchValue;
 
         $clients = Client::query()
@@ -209,23 +260,21 @@ class ClientController extends Controller
         ->orWhere('description', 'like', "%{$searchValue}%")
         ->get();
 
-        if(count($clients)>0) {
-            $clients_array = array(
+        if(count($clients) > 0) {
+            $cliens_array = array(
                 'clients' => $clients
             );
         } else {
-            $clients_array = array(
-                'errorMessage' => 'No clients founde'
+            $cliens_array = array(
+                'errorMessage' => 'No clients found'
             );
         }
 
-        // $clients_array = array(
-        //     'clients' => $clients
-        // );
+        
 
-        $json_response =response()->json($clients_array);
+        $json_response =response()->json($cliens_array);
 
         return $json_response;
-    }
 
+    }
 }
