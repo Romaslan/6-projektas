@@ -23,7 +23,8 @@ th div{
     <!-- paieska -->
     <div class="seachAjaxForm">
     <input id="searchValue" type="text">
-    <button type="button" id="submitSearch">Find</button>
+    <span class="search-feedback"></span>
+    <!-- <button type="button" id="submitSearch">Find</button> -->
     </div>
 
     <table id="clients-table" class="table table-striped">
@@ -343,8 +344,25 @@ $(document).ready(function() {
         });
     })
 
-    $('#submitSearch').click(function(){
+    // $('#submitSearch').click(function(){
+        $(document).on('input', '#searchValue', function() {
         let searchValue = $('#searchValue').val();
+        let searchFieldCount = searchValue.length;
+
+        if(searchFieldCount == 0) {
+            console.log("Field is empty")
+            $(".search-feedback").css('display', 'block');
+            $(".search-feedback").html("Field is empty");
+        }else if (searchFieldCount != 0 && searchFieldCount < 3 ) {
+            console.log("Min 3")
+            $(".search-feedback").css('display', 'block');
+            $(".search-feedback").html("Min 3");
+        }else {
+            $(".search-feedback").css('display', 'none');
+
+
+        console.log(searchFieldCount);
+
         console.log(searchValue);
 
         $.ajax({
@@ -376,6 +394,7 @@ $(document).ready(function() {
                 }
             }
         });
+        }
     });
 })
 </script>
