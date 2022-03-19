@@ -9,12 +9,6 @@ th div{
 </style>
 <div class="container">
     
-    <button class="clients-sort" type="button" data-sort="id" data-direction="asc">Rikiuok pagal id</button>
-    <button class="clients-sort" type="button" data-sort="name" data-direction="asc">Rikiuok pagal varda</button>
-    <button class="clients-sort" type="button" data-sort="surname" data-direction="asc">Rikiuok pagal pavarde</button>
-    <button class="clients-sort" type="button" data-sort="description" data-direction="asc">Rikiuok pagal aprasyma</button>
-    <button class="clients-sort" type="button" data-sort="clientCompany.title" data-direction="asc">Rikiuok pagal kompanijos pavadinima</button>
-
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
         Create client
@@ -23,33 +17,14 @@ th div{
     <input id="hidden-sort" type="hidden" value="id"/>
     <input id="hidden-direction" type="hidden" value="asc"/>
 
-
-    <button id="remove-table">Remove table</button>
-
-<!-- Modal -->
-
-<!-- tiesiog sena koda pasiemei viska reikia imt is bootsrap 5 bibliotekos -->
-
-<div id="alert" class="alert alert-success d-none">
+    <div id="alert" class="alert alert-success d-none">
     </div>
     
-        <!-- <div class="ajaxForm">
-            <div class="form-group">
-                <label for="client_name">Client Name</label>
-                <input id="client_name" class="form-control" type="text" name="client.name"/>
-            </div>
-            <div class="form-group">
-                <label for="client_surname">Client Surname</label>
-                <input id="client_surname" class="form-control" type="text" name="client.surname"/>
-            </div>
-            <div class="form-group">
-                <label for="client_description">Client Description</label>
-                <input id="client_description" class="form-control" type="text" name="client.description"/>
-            </div>
-            <div class="form-group">
-                <button id="submit-ajax-form" class="btn btn-primary">Save</button>
-            </div>
-        </div> -->
+    <!-- paieska -->
+    <div class="seachAjaxForm">
+    <input id="searchValue" type="text">
+    <button type="button" id="submitSearch">Find</button>
+    </div>
 
     <table id="clients-table" class="table table-striped">
         <thead>
@@ -367,6 +342,41 @@ $(document).ready(function() {
             }
         });
     })
+
+    $('#submitSearch').click(function(){
+        let searchValue = $('#searchValue').val();
+        console.log(searchValue);
+
+        $.ajax({
+            type: 'GET',
+            url: '{{route("client.searchAjax")}}',
+            data: {searchValue: searchValue},
+
+            success: function(data) {
+                
+                console.log(data)
+                if($.isEmptyObject(data.errorMessage)) {
+                    $("#clients-table").show();
+                    $('#alert').addClass('d-none');
+                    $("#clients-table tbody").html('');
+                $.each(data.clients, function(key, client) {
+                    
+                    let html;
+                    
+                    html = createRowFromHtml(client.id, client.name, client.surname, client.description, client.company_id);
+                    // console.log(html)
+                    $("#clients-table tbody").append(html);
+                });
+                } else {
+                        $("#clients-table").hide();
+                        $('#alert').removeClass('alert-success');
+                        $('#alert').addClass('alert-danger');
+                        $('#alert').removeClass('d-none');
+                        $("#alert").html(data.errorMessage);
+                }
+            }
+        });
+    });
 })
 </script>
 
